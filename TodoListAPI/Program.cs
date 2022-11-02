@@ -5,7 +5,12 @@ using Microsoft.IdentityModel.Tokens;
 using System.Configuration;
 using System.Text;
 using TodoListAPI.Data;
+using TodoListAPI.Models;
 using TodoListAPI.Models.Authentication;
+using TodoListAPI.Repositories.Implementation;
+using TodoListAPI.Repositories.Interfaces;
+using TodoListAPI.Services.Implementation;
+using TodoListAPI.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,30 +22,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
            options.UseSqlServer(builder.Configuration.GetConnectionString("ToDoItemConnection")));
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-            .AddJwtBearer(options =>
-            {
-                options.SaveToken = true;
-                options.RequireHttpsMetadata = false;
-                options.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidAudience = builder.Configuration["JWT:ValidAudience"],
-                    ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
-                };
-            });
-        
 
+builder.Services.AddApplicationService();
+builder.Services.AddTransient<ITodoTaskRepository, TodoTaskRepository>();
+builder.Services.AddTransient<ITodoTaskService, TodoTaskService>();
+builder.Services.AddTransient<IRepositoryWrapper, RepositoryWrapper>();
+builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
 

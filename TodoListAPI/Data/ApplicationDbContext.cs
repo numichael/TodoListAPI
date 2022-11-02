@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using TodoListAPI.Models;
 using TodoListAPI.Models.AppModels;
 using TodoListAPI.Models.Authentication;
 
@@ -32,5 +33,6 @@ namespace TodoListAPI.Data
         }
 
         public DbSet<ToDoItemModel> ToDoItems { get; set; }
+        public DbSet<TodoTask> ToDoTasks { get; set; }
     }
 }
